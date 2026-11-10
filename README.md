@@ -1,6 +1,6 @@
-# Entrega 1 - Administrador de Servicios
+# Entrega 2 - API de Servicios
 
-Proyecto Node.js (ESM) con una clase `ServiceManager` que gestiona en memoria los servicios de un consultorio odontológico para un sistema de turnos y reservas.
+API REST con Node.js (ESM) y Express para gestionar los servicios de un consultorio odontológico, pensada para un sistema de turnos y reservas. Ofrece un CRUD completo sobre el recurso `services`.
 
 ## Instalación
 
@@ -13,12 +13,10 @@ Crear un archivo `.env` en la raíz del proyecto (se puede usar `.env.example` c
 ## Ejecución
 
 ```bash
-node src/server.js
+npm start
 ```
 
-Imprime en consola el puerto configurado.
-
-> Estado actual: `src/server.js` importa `./config/env.config.js`, pero el archivo de configuración se llama `src/config/config.js`. Hasta que coincidan los nombres, la ejecución falla con `ERR_MODULE_NOT_FOUND`.
+Ejecuta `node --watch src/app.js`, que reinicia el servidor al guardar cambios. Al arrancar imprime en consola el puerto en el que escucha (por defecto `http://localhost:8080`).
 
 ## Variables de entorno
 
@@ -27,78 +25,99 @@ Imprime en consola el puerto configurado.
 | `PORT`     | Puerto de la aplicación. Si no está definida, usa 8080  | `8080`        |
 | `NODE_ENV` | Entorno de ejecución (definida en `.env`, aún no usada) | `development` |
 
+El archivo `.env` está en `.gitignore` y no se sube al repositorio; `.env.example` sí.
+
 ## Estructura
 
 ```
 src/
-  server.js
+  app.js                       # Servidor Express y endpoints
+  server.js                    # Script de la entrega 1 (ver nota)
   config/config.js
-  managers/ServiceManager.js
+  managers/ServiceManager.js   # Clase de la entrega 1 (ver nota)
 .env
 .env.example
-gitignore
+.gitignore
 package.json
 ```
+
+> Nota: la API de esta entrega vive completa en `src/app.js` y guarda los datos en un arreglo en memoria. `src/server.js` y `src/managers/ServiceManager.js` vienen de la entrega 1 y `app.js` no los usa.
 
 ## Recurso `services`
 
 Cada servicio tiene esta forma:
 
-```js
+```json
 {
-  id: 1,
-  name: "Extraccion de diente",
-  precio: 4000,
-  tiempo: 5000,
-  descripcion: "extraccion simple de muelas de juicio"
+  "id": 1,
+  "name": "Extraccion de diente",
+  "precio": 4000,
+  "tiempo": 5000,
+  "descripcion": "extraccion simple de muelas de juicio"
 }
 ```
 
-| Campo         | Descripción                                                          |
-|---------------|----------------------------------------------------------------------|
-| `id`          | Identificador. El servicio inicial usa `1`; los nuevos usan un UUID  |
-| `name`        | Nombre del servicio                                                  |
-| `precio`      | Precio                                                               |
-| `tiempo`      | Duración                                                             |
-| `descripcion` | Descripción del servicio                                             |
+| Campo         | Descripción                                        |
+|---------------|----------------------------------------------------|
+| `id`          | Identificador. Los servicios iniciales usan 1, 2 y 3 |
+| `name`        | Nombre del servicio                                |
+| `precio`      | Precio                                             |
+| `tiempo`      | Duración                                           |
+| `descripcion` | Descripción del servicio                           |
 
-Los servicios viven solo en memoria: se pierden al terminar el proceso. El manager arranca con un servicio inicial.
+Los servicios viven solo en memoria: se pierden al reiniciar el servidor. Arranca con tres servicios cargados.
 
-## Métodos de `ServiceManager`
+## Endpoints
 
-La clase está definida en `src/managers/ServiceManager.js` y todavía no se exporta, por lo que no se puede importar desde otros archivos. Los ejemplos suponen una instancia `manager = new ServiceManager()`.
+Todas las respuestas son JSON con la forma `{ "status": "success" | "error", ... }`.
 
-### `getServices()`
-Devuelve el arreglo con todos los servicios.
+| Método   | Ruta                 | Descripción                  |
+|----------|----------------------|------------------------------|
+| `GET`    | `/api/services`      | Lista todos los servicios    |
+| `GET`    | `/api/services/:sid` | Devuelve un servicio por id  |
+| `POST`   | `/api/services`      | Crea un servicio             |
+| `PUT`    | `/api/services/:sid` | Reemplaza un servicio        |
+| `DELETE` | `/api/services/:sid` | Elimina un servicio          |
 
-```js
-manager.getServices();
+### `GET /api/services`
+
+Respuesta `200`:
+
+```json
+{ "status": "success", "payload": [ { "id": 1, "name": "...", "precio": 4000, "tiempo": 5000, "descripcion": "..." } ] }
 ```
 
-### `getServicesById(id)`
-Devuelve el servicio con ese `id`, o `undefined` si no existe.
+### `GET /api/services/:sid`
 
-```js
-manager.getServicesById(1);
+Respuesta `200` con el servicio en `payload`, o `404` con `"Servicio no encontrado"`.
+
+### `POST /api/services`
+
+Body (JSON):
+
+```json
+{
+  "name": "Placa Dental",
+  "precio": 15000,
+  "tiempo": 200,
+  "descripcion": "placa de relajacion para bruxismos"
+}
 ```
 
-### `createServices(name, precio, tiempo, descripcion)`
-Crea un servicio con un `id` generado (UUID), lo agrega a la lista y lo devuelve. Recibe los datos como parámetros sueltos y no valida que estén presentes.
+- `name`, `precio` y `tiempo` son obligatorios. Si falta alguno responde `400` con `"Faltan campos obligatorios"`.
+- `descripcion` es opcional.
+- Respuesta `201` con el servicio creado en `payload`.
 
-```js
-manager.createServices("Placa Dental", 15000, 200, "placa de relajacion para bruxismos");
-```
+### `PUT /api/services/:sid`
 
-### `updateServices(id, data)`
-Devuelve una copia del servicio con los campos de `data` aplicados, o `null` si no existe. No guarda el cambio en la lista ni protege el `id`.
+Reemplaza el servicio completo con los campos del body (mismos campos que en el `POST`), conservando el `id`. Respuesta `200` con el servicio actualizado, o `404` con `"servicio no encontrado"` si no existe. No valida los campos: los que no se envían quedan en `undefined`.
 
-```js
-manager.updateServices(1, { precio: 200 });
-```
+### `DELETE /api/services/:sid`
 
-### `deleteService(id)`
-Elimina el servicio de la lista. Devuelve un arreglo con el servicio eliminado, o `null` si no existe.
+Elimina el servicio. Respuesta `200` con el servicio eliminado en `payload`, o `404` con `"servicio no encontrado"`.
 
-```js
-manager.deleteService(1);
-```
+## Limitaciones conocidas
+
+- Los servicios creados con `POST` reciben un UUID como `id`, pero las rutas con `:sid` convierten el parámetro con `Number()`. Por eso esos servicios no se pueden consultar, editar ni borrar por id hasta unificar el tipo de `id`.
+- El `PUT` reemplaza el servicio completo sin validar: si el body no trae todos los campos, los que faltan quedan en `undefined`.
+- No hay persistencia: los datos se pierden al reiniciar.
