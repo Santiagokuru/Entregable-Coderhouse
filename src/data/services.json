@@ -1,0 +1,23 @@
+[
+  {
+    "id": "2",
+    "name": "Consulta detal",
+    "precio": 3000,
+    "tiempo": 3000,
+    "descripcion": "Consulta con un profesional odontologio"
+  },
+  {
+    "id": "3",
+    "name": "Arreglo dental",
+    "precio": 1500,
+    "tiempo": 3000,
+    "descripcion": "Arreglo de una carie"
+  },
+  {
+    "id": "61406f20-6063-4929-9d84-d1add7a5ffb3",
+    "name": "otro",
+    "precio": 432,
+    "tiempo": 5043200,
+    "descripcion": "hola"
+  }
+]
