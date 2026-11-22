@@ -2,33 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 
 const app = express()
-const PORT = process.env.PORT || 8080
+const PORT = config.port || 8080
 
 app.use(express.json());
-
-const services = [
-    {
-        id: 1,
-        name: "Extraccion de diente",
-        precio: 4000,
-        tiempo: 5000,
-        descripcion: "extraccion simple de muelas de juicio"
-    },
-    {
-        id: 2,
-        name: "Consulta detal",
-        precio: 3000,
-        tiempo: 3000,
-        descripcion: "Consulta con un profesional odontologio"
-    },
-    {
-        id: 3,
-        name: "Arreglo dental",
-        precio: 1500,
-        tiempo: 3000,
-        descripcion: "Arreglo de una carie"
-    },
-]
 
 // ENDOPONIT PARA LOS SERIVICIOS
 
@@ -145,6 +121,8 @@ app.delete("/api/services/:sid", (req, res) => {
 
 
 
+
+
 app.listen(PORT, () => {
-    console.log("Servidosr escuahando en localhost " + PORT)
+    console.log("Servidor escuchando en localhost " + PORT)
 })

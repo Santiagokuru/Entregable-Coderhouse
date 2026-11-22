@@ -1,0 +1,16 @@
+[
+    {
+        "id": "1",
+        "clientName": "Consulta detal",
+        "clientEmail": "hola@test.com",
+        "date": 3000,
+        "time": 3500,
+        "status":"available",
+        "services": [
+            {
+                "service": "1",
+                "quantity": 1
+            }
+        ]
+    }
+]
