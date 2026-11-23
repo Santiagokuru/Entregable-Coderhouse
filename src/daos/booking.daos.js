@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import fs from "fs/promises";
 
-class BookingManager {
+class BookingDaos {
     constructor(path) {
         this.path = path;
     }
@@ -65,4 +65,4 @@ class BookingManager {
     }
 }
 
-export default BookingManager
+export default BookingDaos
