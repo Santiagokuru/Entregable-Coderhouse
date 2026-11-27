@@ -1,6 +1,6 @@
 # API de Servicios y Reservas
 
-API REST con Node.js (ESM), Express y MongoDB (Mongoose) para un consultorio odontológico. Ofrece un CRUD completo sobre dos recursos: `services` (los servicios que ofrece el consultorio) y `bookings` (las reservas de turnos). Los datos se guardan en MongoDB, en las colecciones `services` y `bookings`.
+API REST con Node.js (ESM), Express y MongoDB (Mongoose) para un consultorio odontológico. Ofrece un CRUD completo sobre dos recursos: `services` (los servicios que ofrece el consultorio) y `bookings` (las reservas de turnos). Los datos se guardan en MongoDB, en la base `clinica_odontologica`, en las colecciones `services` y `bookings`.
 
 ## Instalación
 
@@ -23,10 +23,10 @@ Ejecuta `node --watch src/server.js`, que reinicia el servidor al guardar cambio
 | Variable            | Descripción                                                              | Ejemplo                                  |
 |---------------------|--------------------------------------------------------------------------|------------------------------------------|
 | `PORT`              | Puerto de la aplicación. Si no está definida, usa 8080                   | `8080`                                   |
-| `Mongodb_conection` | URI de conexión a MongoDB (se escribe así, con ese nombre exacto)        | `mongodb+srv://usuario:clave@cluster/db` |
+| `Mongodb_conection` | URI de conexión a MongoDB (se escribe así, con ese nombre exacto)        | `mongodb+srv://usuario:clave@cluster`    |
 | `NODE_ENV`          | Entorno de ejecución (definida en `.env`, aún no usada)                  | `development`                            |
 
-Si la URI no incluye el nombre de la base, MongoDB usa la base `test`. El archivo `.env` está en `.gitignore` y no se sube al repositorio. Como contiene la contraseña de la base, no hay que subirlo ni compartirlo.
+La URI no necesita incluir el nombre de la base: la aplicación se conecta siempre a la base `clinica_odontologica`, que se define con la opción `dbName` en `src/config/database.config.js` y tiene prioridad sobre cualquier nombre que traiga la URI. Si se cambia ese nombre, la aplicación pasa a trabajar con una base nueva y vacía (MongoDB la crea al guardar el primer documento); los datos de la base anterior no se mueven. El archivo `.env` está en `.gitignore` y no se sube al repositorio. Como contiene la contraseña de la base, no hay que subirlo ni compartirlo.
 
 ## Estructura
 
@@ -42,7 +42,7 @@ src/
   app.js                          # Crea la app de Express y monta las rutas
   config/
     config.js                     # Carga .env y expone el puerto y la URI de MongoDB
-    database.config.js            # Conexión a MongoDB (connectDB)
+    database.config.js            # Conexión a MongoDB y nombre de la base (connectDB)
   routes/
     services.router.js            # Rutas de /api/services
     bookings.router.js            # Rutas de /api/bookings
@@ -150,7 +150,7 @@ Respuesta `200` con el servicio en `payload`, o `404` (`"No se encuentra el serv
 
 **`PUT /api/services/:sid`**
 
-Actualiza solo los campos que se envían en el body y valida los valores nuevos. Respuesta `200` con el servicio actualizado, `400` si algún valor es inválido, o `404` si no existe.
+Actualiza solo los campos que se envían en el body y valida los valores nuevos. El `_id` no se puede modificar aunque venga en el body. Respuesta `200` con el servicio actualizado, `400` si algún valor es inválido, o `404` si no existe.
 
 **`DELETE /api/services/:sid`**
 
@@ -238,7 +238,6 @@ Respuesta `200` con la reserva eliminada en `payload`, o `404` si no existe.
 
 ## Limitaciones conocidas
 
-- Un `PUT` sobre un servicio que incluya `_id` en el body responde `500`: MongoDB no permite modificar el `_id`. El `_id` no cambia, pero la respuesta no es un error `400`.
 - Las reservas guardan solo el id de cada servicio. Si después se borra un servicio, las reservas que lo referencian quedan apuntando a un servicio inexistente: el `DELETE` de servicios no lo comprueba.
 - `status` acepta cualquier texto: no hay una lista cerrada de estados.
 - Las listas (`GET /api/services` y `GET /api/bookings`) devuelven todos los documentos, sin paginación ni filtros.

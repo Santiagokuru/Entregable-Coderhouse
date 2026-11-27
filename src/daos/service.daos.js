@@ -14,11 +14,14 @@ class ServiceDaos {
     }
 
     async updateService(id, data) {
-        return await serviceModel.findByIdAndUpdate(id, data, {
+        const changes = { ...data }
+        delete changes._id // evita que el body cambie el id
+        delete changes.id
+
+        return await serviceModel.findByIdAndUpdate(id, changes, {
             new: true,
             runValidators: true
         })
-
     }
 
     async deleteService(id) {
