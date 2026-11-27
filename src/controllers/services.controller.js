@@ -31,14 +31,7 @@ export const getServiceById = async (req, res) => {
 
 export const createService = async (req, res) => {
     try {
-        const {
-            name,
-            precio,
-            tiempo,
-            descripcion
-        } = req.body ?? {}
-
-        const newService = await serviceService.createService(name, precio, tiempo, descripcion)
+        const newService = await serviceService.createService(req.body ?? {})
         res.status(201).json({
             status: "success",
             message: "Servicio creado",

@@ -30,16 +30,7 @@ export const getBookingById = async (req, res) => {
 
 export const createBooking = async (req, res) => {
     try {
-        const {
-            clientName,
-            clientEmail,
-            date,
-            time,
-            status = "available",
-            services
-        } = req.body ?? {}
-
-        const newBooking = await bookingService.createBooking(clientName, clientEmail, date, time, status, services)
+        const newBooking = await bookingService.createBooking(req.body ?? {})
         res.status(201).json({
             status: "success",
             message: "Reserva creada",

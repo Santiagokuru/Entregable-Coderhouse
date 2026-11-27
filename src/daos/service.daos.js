@@ -1,68 +1,28 @@
-import crypto from "crypto";
-import fs from "fs/promises";
+import { serviceModel } from "./models/service.models.js";
 
 class ServiceDaos {
-    constructor(path) {
-        this.path = path;
-    }
-
-    async #readServices() {
-        const data = await fs.readFile(this.path, "utf-8");
-        return JSON.parse(data)
-    }
-
-    async #writeServices(services) {
-        await fs.writeFile(this.path, JSON.stringify(services, null, 2))
-    }
-
-
     async getServices() {
-        return await this.#readServices();
+        return await serviceModel.find();
     }
 
     async getServiceById(id) {
-        const services = await this.#readServices();
-        return services.find(service => (service.id) === (id));
+        return await serviceModel.findById(id);
     }
 
-    async createService(name, precio, tiempo, descripcion) {
-        const services = await this.#readServices();
-        const newService = {
-            id: crypto.randomUUID(),
-            name,
-            precio,
-            tiempo,
-            descripcion
-
-        }
-        services.push(newService);
-        await this.#writeServices(services);
-        return newService
-
+    async createService(data) {
+        return await serviceModel.create(data);
     }
 
     async updateService(id, data) {
-        const services = await this.#readServices();
-
-        const index = services.findIndex(service => (service.id) === (id))
-        if (index === -1) return null
-        services[index] = {
-            ...services[index],
-            ...data,
-            id // evita que el body cambie el id
-        };
-        await this.#writeServices(services);
-        return services[index];
+        return await serviceModel.findByIdAndUpdate(id, data, {
+            new: true,
+            runValidators: true
+        })
 
     }
 
     async deleteService(id) {
-        const services = await this.#readServices();
-        const index = services.findIndex(service => (service.id) === (id));
-        if (index === -1) return null;
-        const deleteService = services.splice(index, 1)[0]
-        await this.#writeServices(services);
-        return deleteService
+        return await serviceModel.findByIdAndDelete(id);
     }
 }
 
