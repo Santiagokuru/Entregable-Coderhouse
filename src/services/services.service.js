@@ -22,11 +22,11 @@ export default class ServiceService {
         return service
     }
 
-    async createService(name, precio, tiempo, descripcion) {
-        if (!name || !precio || !tiempo || !descripcion) {
+    async createService(data) {
+        if (!data.name || !data.precio || !data.tiempo || !data.descripcion) {
             throw new HttpError("Faltan datos, completar", 400)
         }
-        return await this.services.createService(name, precio, tiempo, descripcion)
+        return await this.services.createService(data)
     }
 
     async updateService(id, serviceUpdate) {
