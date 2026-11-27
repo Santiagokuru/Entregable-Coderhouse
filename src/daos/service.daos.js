@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import fs from "fs/promises";
 
-class ServiceManager {
+class ServiceDaos {
     constructor(path) {
         this.path = path;
     }
@@ -48,7 +48,8 @@ class ServiceManager {
         if (index === -1) return null
         services[index] = {
             ...services[index],
-            ...data
+            ...data,
+            id // evita que el body cambie el id
         };
         await this.#writeServices(services);
         return services[index];
@@ -65,7 +66,7 @@ class ServiceManager {
     }
 }
 
-export default ServiceManager
+export default ServiceDaos
 
-//const obj = new ServiceManager();
+//const obj = new ServiceDaos();
 

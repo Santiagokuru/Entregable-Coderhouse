@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { routingDetector } from "../middlewares/routingDetector.js";
-import { getBookings, getBookingById, createBooking, updateBooking, deleteBooking } from "../controllers/booking.controller.js";
+import { getBookings, getBookingById, createBooking, updateBooking, deleteBooking } from "../controllers/bookings.controller.js";
 
 const router = Router();
 
